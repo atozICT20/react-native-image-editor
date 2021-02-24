@@ -31,6 +31,9 @@ import android.graphics.BitmapRegionDecoder;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -270,13 +273,16 @@ public class ImageEditorModule extends ReactContextBaseJavaModule {
           cropped = crop(outOptions);
         }
 
+        Bitmap grayscale;
+        grayscale = imageToGrayscale(cropped);
+
         String mimeType = outOptions.outMimeType;
         if (mimeType == null || mimeType.isEmpty()) {
           throw new IOException("Could not determine MIME type");
         }
 
         File tempFile = createTempFile(mContext, mimeType);
-        writeCompressedBitmapToFile(cropped, mimeType, tempFile);
+        writeCompressedBitmapToFile(grayscale, mimeType, tempFile);
 
         if (mimeType.equals("image/jpeg")) {
           copyExif(mContext, Uri.parse(mUri), tempFile);
@@ -286,6 +292,21 @@ public class ImageEditorModule extends ReactContextBaseJavaModule {
       } catch (Exception e) {
         mPromise.reject(e);
       }
+    }
+
+    private Bitmap imageToGrayscale(Bitmap originSourceImage) {
+        Bitmap convertedImage = Bitmap.createBitmap(originSourceImage.getWidth(), originSourceImage.getHeight(), originSourceImage.getConfig());
+
+        Canvas canvas = new Canvas(convertedImage);
+        Paint paint = new Paint();
+
+        ColorMatrixColorFilter colorMatrixColorFilter = new ColorMatrixColorFilter(GRAYSCALE_MATRIX);
+        paint.setColorFilter(colorMatrixColorFilter);
+        canvas.drawBitmap(originSourceImage, 0, 0, paint);
+
+        originSourceImage.recycle();
+
+        return convertedImage;
     }
 
     /**
