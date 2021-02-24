@@ -294,6 +294,8 @@ public class ImageEditorModule extends ReactContextBaseJavaModule {
       }
     }
 
+    private static final float[] GRAYSCALE_MATRIX = new float[]{0.3f, 0.59f, 0.11f, 0, 0, 0.3f, 0.59f, 0.11f, 0, 0, 0.3f, 0.59f, 0.11f, 0, 0, 0, 0, 0, 1, 0,};
+
     private Bitmap imageToGrayscale(Bitmap originSourceImage) {
         Bitmap convertedImage = Bitmap.createBitmap(originSourceImage.getWidth(), originSourceImage.getHeight(), originSourceImage.getConfig());
 
